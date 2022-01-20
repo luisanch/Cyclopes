@@ -102,12 +102,8 @@ for(k=capture_params.first+1:capture_params.last)
 			figure(1); hold on;	
 			DrawImagePoly('Warped Current Image', 1, CurrentImage.I, WarpedImage.polygon);
 		end;
-
 end;
-
 return;
-
-
 
 % Default test function if no values are given
 function test()
@@ -123,20 +119,19 @@ tracking_params.scale_threshold = 1; % 1 grey level
 tracking_params.size_x = 8; % number of parameters to estimate
 
 
-% Change for your paths here
-capture_params.homedir = '/home/comport/home/documents/courses/2019_utoulon/practical/solution/cyclopes/'
-capture_params.data_dir = '/home/comport/home/documents/courses/2019_utoulon/practical/Versailles_canyon/Left/'
+% Change for your paths here 
+capture_params.homedir = 'C:\Users\Luiss\Documents\MATLAB\UTLN\Vision\cyclopes';
+capture_params.data_dir = 'C:\Users\Luiss\Documents\MATLAB\UTLN\Vision\IMAGES_smallRGB\';
 %capture_params.data_dir = [getenv('DIR_DATA'), '/../data/Versailles/Versailles_canyon/Left/']; 
 %capture_params.homedir = getenv('DIR_CYCLOPES'); 
-capture_params.prefix = 'ima';
-capture_params.suffix = '.pgm';
+capture_params.prefix = 'img';
+capture_params.suffix = '.png';
 capture_params.string_size= 4;
-capture_params.first = 1;
-capture_params.last = 100;
+capture_params.first = 100;
+capture_params.last = 200;
 capture_params.savepolygon = 0;
 capture_params.loadpolygon = 0;
 
 
 [H] = mainTrackImageSL3(capture_params, tracking_params);
-
 return;

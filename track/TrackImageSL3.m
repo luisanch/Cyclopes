@@ -88,7 +88,7 @@ while(1)
 		if(tracking_param.display)
 			norm(x)
 		end;
-
+end
 
 if(tracking_param.display)
 
