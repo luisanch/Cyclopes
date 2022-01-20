@@ -31,12 +31,19 @@ end;
 WarpedImage = WarpSL3(ReferenceImage, H);
 
 % Bilinear interpolation of image
+WarpedImage.I = zeros(ReferenceImage.sIv, ReferenceImage.sIu);
+WarpedImage.I(WarpedImage.index) = interp2(double(CurrentImage.I), WarpedImage.P.U(WarpedImage.index), WarpedImage.P.V(WarpedImage.index), 'linear');
 
+Boundary_Mask = bwperim(WarpedImage.Mask, 8);
+WarpedImage.Mask(find(Boundary_Mask)) = 0;
+WarpedImage.index = find(WarpedImage.Mask);
+
+[commun_elements, border_index, dummy] = setxor(ReferenceImage.index, find(Boundary_Mask));
+WarpedImage.visibility_index = intersect(WarpedImage.visibility_index, border_index);
 
 if(DEBUG_LEVEL_3)
 	imagesc(WarpedImage.I - double(ReferenceImage.I)); 
 	imagesc(WarpedImage.Mask);
 	colormap(gray);
 end;
-
 return

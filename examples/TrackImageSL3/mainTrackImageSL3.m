@@ -118,7 +118,6 @@ tracking_params.robust_method='tukey'; % Can be 'huber' or 'tukey' for the momen
 tracking_params.scale_threshold = 1; % 1 grey level
 tracking_params.size_x = 8; % number of parameters to estimate
 
-
 % Change for your paths here 
 capture_params.homedir = 'C:\Users\Luiss\Documents\MATLAB\UTLN\Vision\cyclopes';
 capture_params.data_dir = 'C:\Users\Luiss\Documents\MATLAB\UTLN\Vision\IMAGES_smallRGB\';
@@ -131,7 +130,6 @@ capture_params.first = 100;
 capture_params.last = 200;
 capture_params.savepolygon = 0;
 capture_params.loadpolygon = 0;
-
 
 [H] = mainTrackImageSL3(capture_params, tracking_params);
 return;

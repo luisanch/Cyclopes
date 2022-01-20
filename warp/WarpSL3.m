@@ -24,19 +24,31 @@ if(DEBUG_LEVEL_3)
 	keyboard;
 end;
 
-keyboard; % enter debug mode here - use dbquit to exit debug mode
+%keyboard; % enter debug mode here - use dbquit to exit debug mode
 
 %TODO : 
 % 1. Warp patch coordinates (u, v, w);
+u = (H(1,1)*ReferenceImage.P.U(ReferenceImage.index)+...
+    H(1,2)*ReferenceImage.P.V(ReferenceImage.index)+H(1,3));
+v = (H(2,1)*ReferenceImage.P.U(ReferenceImage.index)+...
+    H(2,2)*ReferenceImage.P.V(ReferenceImage.index)+H(2,3));
+w = (H(3,1)*ReferenceImage.P.U(ReferenceImage.index)+...
+    H(3,2)*ReferenceImage.P.V(ReferenceImage.index)+H(3,3));
 
 % 2. Normalise coordinates so that w = 1; 
+u = u./w;
+v = v./w;
 
 % 3. Check if the warped pixels fall inside the image and update indexes accordingly
-
+WarpedImage.visibility_index = find(u<=ReferenceImage.sIu+1 & u>1 & v <=ReferenceImage.sIv+1);
+WarpedImage.index = ReferenceImage.index(WarpedImage.visibility_index);
 
 % Stored in WarpedImage.P.U and WarpedImage.P.V which are images of size:
 WarpedImage.P.U = zeros(size(ReferenceImage.I));
 WarpedImage.P.V = zeros(size(ReferenceImage.I));
+
+WarpedImage.P.U(WarpedImage.index) = u(WarpedImage.visibility_index);
+WarpedImage.P.V(WarpedImage.index) = v(WarpedImage.visibility_index);
 
 % Propagate and update Mask and indexes
 WarpedImage.Mask = zeros(ReferenceImage.sIv,ReferenceImage.sIu);
