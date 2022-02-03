@@ -30,14 +30,14 @@ end;
 
 % Initialise Homography
 Hnew = H;
-residue = 0;
+residues = 10000000;
 iter = 0;
 x = 10000000; % So that initially the norm(x) in the while loop is large 
 
 % Iterative minimization
 %while(YOUR STOPPING CRITERION HERE)% 
  
-while(x > tracking_param.max_x) %change this for different conditions
+while(iter < tracking_param.max_iter & norm(x) > tracking_param.max_x & norm(residues) > tracking_param.max_err) %change this for different conditions
 		% Current patch
     WarpedImage = WarpImageSL3(CurrentImage, ReferenceImage, Hnew);    
 
