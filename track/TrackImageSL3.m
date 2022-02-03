@@ -36,7 +36,8 @@ x = 10000000; % So that initially the norm(x) in the while loop is large
 
 % Iterative minimization
 %while(YOUR STOPPING CRITERION HERE)% 
-while(1)
+ 
+while(x > tracking_param.max_x) %change this for different conditions
 		% Current patch
     WarpedImage = WarpImageSL3(CurrentImage, ReferenceImage, Hnew);    
 
@@ -98,7 +99,6 @@ if(tracking_param.display)
 
 	norm(x)
 	iter
-
 end
 
 return
