@@ -38,7 +38,7 @@
 %====================================================================================
 
 %
-function [H] = mainTrackImageSL3(capture_params, tracking_param);
+function [H, results] = mainTrackImageSL3(capture_params, tracking_param);
 
 % Setup debugging variables
 global DEBUG_LEVEL_1;
@@ -74,6 +74,12 @@ if(tracking_param.display)
 	DrawImagePoly('Reference Image', 1, ReferenceImage.I, ReferenceImage.polygon);
 end;
 
+% Storing Params
+norms_x = [];
+iters_required = [];
+computation_time = [];
+iterator = [];
+
 % Initialise Homography 
 H(:,:,1) = eye(3,3);
 
@@ -81,6 +87,7 @@ H(:,:,1) = eye(3,3);
 i=1;
 % Loop through sequence
 for(k=capture_params.first+1:capture_params.last)
+        tic;
 		i = i+1;
 	
 		image_num_string = sprintf(['%0', num2str(capture_params.string_size), 'd'], k);
@@ -101,7 +108,7 @@ for(k=capture_params.first+1:capture_params.last)
         end
 
 		% Iterative non-linear homography estimation
-        [H(:,:,i), WarpedImage] = TrackImageSL3(ReferenceImage, CurrentImage, Htrack, tracking_param);
+        [H(:,:,i), WarpedImage, norm_x, iter_required] = TrackImageSL3(ReferenceImage, CurrentImage, Htrack, tracking_param);
 		H(:,:,i)
 	
 		if(tracking_param.display)
@@ -115,8 +122,17 @@ for(k=capture_params.first+1:capture_params.last)
             ReferenceImage.polygon = WarpedImage.polygon;
             ReferenceImage.index = WarpedImage.index;
             ReferenceImage.Mask = WarpedImage.Mask;
-        end  
+        end
+
+        % Storing params
+        iterator(i-1) = i-1;
+        computation_time(i-1) = toc;
+        norms_x(i-1) = norm_x;
+        iters_required(i-1) = iter_required;
+
 end;
+results = [iterator, computation_time, norms_x, iters_required];
+
 return;
 
 % Default test function if no values are given
@@ -132,6 +148,8 @@ tracking_params.robust_method='huber'; % Can be 'huber' or 'tukey' for the momen
 tracking_params.scale_threshold = 2; % 1 grey level
 tracking_params.size_x = 8; % number of parameters to estimate
 tracking_params.changereference = 0;
+% Saving Results
+tracking_params.save_results = true;
 
 % Change for your paths here 
 capture_params.who = 2; % 1 = Vipul, 2 = Luis
@@ -150,9 +168,11 @@ capture_params.prefix = 'ima';
 capture_params.suffix = '.pgm';
 capture_params.string_size= 4;
 capture_params.first = 50;
-capture_params.last = 250;
+capture_params.last = 100;
 capture_params.savepolygon = 0;
 capture_params.loadpolygon = 1;
 
-[H] = mainTrackImageSL3(capture_params, tracking_params);
+
+[H, results] = mainTrackImageSL3(capture_params, tracking_params);
+
 return;

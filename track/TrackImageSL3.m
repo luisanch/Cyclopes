@@ -20,7 +20,7 @@
 %===================================================================
 
 
-function [Hnew, WarpedImage] = TrackImageSL3(ReferenceImage, CurrentImage, H, tracking_param)
+function [Hnew, WarpedImage, norm_x, iter_required] = TrackImageSL3(ReferenceImage, CurrentImage, H, tracking_param)
 
 global DEBUG_LEVEL_2;
 if(DEBUG_LEVEL_2)
@@ -98,6 +98,9 @@ if(tracking_param.display)
 	norm(x)
 	iter
 end
+
+norm_x = norm(x);
+iter_required = iter
 
 return
 
