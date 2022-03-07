@@ -37,7 +37,7 @@
 %
 %====================================================================================
 
-
+%
 function [H] = mainTrackImageSL3(capture_params, tracking_param);
 
 % Setup debugging variables
@@ -94,14 +94,30 @@ for(k=capture_params.first+1:capture_params.last)
 		  CurrentImage.I = rgb2gray(CurrentImage.Irgb);
 		end;
 
+        if(tracking_param.changereference)
+            Htrack = eye(3,3);
+        else
+            Htrack = H(:, :, i-1);
+        end
+
 		% Iterative non-linear homography estimation
-    [H(:,:,i), WarpedImage] = TrackImageSL3(ReferenceImage, CurrentImage, H(:,:,i-1), tracking_param);
+        [H(:,:,i), WarpedImage] = TrackImageSL3(ReferenceImage, CurrentImage, Htrack, tracking_param);
 		H(:,:,i)
 	
 		if(tracking_param.display)
 			figure(1); hold on;	
 			DrawImagePoly('Warped Current Image', 1, CurrentImage.I, WarpedImage.polygon);
 		end;
+
+        if(tracking_param.changereference)
+            ReferenceImage.I = CurrentImage.I;
+%             ReferenceImage.Irgb = CurrentImage.Irgb;
+            ReferenceImage.polygon = WarpedImage.polygon;
+            ReferenceImage.index = WarpedImage.index;
+            ReferenceImage.Mask = WarpedImage.Mask;
+        end
+        disp(['Prinnnnnnnnnnnnnnnnnnnnnnnnnnnnt: ' , image_num_string]);
+
 end;
 return;
 
@@ -113,14 +129,15 @@ tracking_params.max_err = 400;
 tracking_params.max_x = 1e-1;
 tracking_params.display = 1;
 tracking_params.estimation_method = 3; % 1 = Reference Jacobian, 2 = Current Jacobian, 3 = ESM 
-tracking_params.mestimator = 1;
+tracking_params.mestimator = 0;
 tracking_params.robust_method='huber'; % Can be 'huber' or 'tukey' for the moment
 tracking_params.scale_threshold = 2; % 1 grey level
 tracking_params.size_x = 8; % number of parameters to estimate
+tracking_params.changereference = 0;
 
 % Change for your paths here 
-capture_params.homedir = 'C:\Users\Luiss\Documents\MATLAB\UTLN\Vision\cyclopes';
-capture_params.data_dir = 'C:\Users\Luiss\Documents\MATLAB\UTLN\Vision\Versailles_canyon\Left\';
+capture_params.homedir = 'C:/Users/Vipul/Documents/MIR/Visual Slam/SLAM/cyclopes';
+capture_params.data_dir = 'C:/Users/Vipul/Documents/MIR/Visual Slam/SLAM/Versailles_canyon/Left/';
 %capture_params.data_dir = [getenv('DIR_DATA'), '/../data/Versailles/Versailles_canyon/Left/']; 
 %capture_params.homedir = getenv('DIR_CYCLOPES'); 
 capture_params.prefix = 'ima';
@@ -129,7 +146,7 @@ capture_params.string_size= 4;
 capture_params.first = 50;
 capture_params.last = 250;
 capture_params.savepolygon = 0;
-capture_params.loadpolygon = 0;
+capture_params.loadpolygon = 1;
 
 [H] = mainTrackImageSL3(capture_params, tracking_params);
 return;
