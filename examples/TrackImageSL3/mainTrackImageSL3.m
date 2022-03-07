@@ -115,9 +115,7 @@ for(k=capture_params.first+1:capture_params.last)
             ReferenceImage.polygon = WarpedImage.polygon;
             ReferenceImage.index = WarpedImage.index;
             ReferenceImage.Mask = WarpedImage.Mask;
-        end
-        disp(['Prinnnnnnnnnnnnnnnnnnnnnnnnnnnnt: ' , image_num_string]);
-
+        end  
 end;
 return;
 
@@ -136,8 +134,16 @@ tracking_params.size_x = 8; % number of parameters to estimate
 tracking_params.changereference = 0;
 
 % Change for your paths here 
+capture_params.who = 2; % 1 = Vipul, 2 = Luis
+
+if (capture_params.who == 2)
+capture_params.homedir = 'C:\Users\Luiss\Documents\MATLAB\UTLN\Semester2\Vision\cyclopes';
+capture_params.data_dir = 'C:\Users\Luiss\Documents\MATLAB\UTLN\Semester2\Vision\Versailles_canyon\Left\';
+elseif (capture_params.who == 1)
 capture_params.homedir = 'C:/Users/Vipul/Documents/MIR/Visual Slam/SLAM/cyclopes';
 capture_params.data_dir = 'C:/Users/Vipul/Documents/MIR/Visual Slam/SLAM/Versailles_canyon/Left/';
+end
+
 %capture_params.data_dir = [getenv('DIR_DATA'), '/../data/Versailles/Versailles_canyon/Left/']; 
 %capture_params.homedir = getenv('DIR_CYCLOPES'); 
 capture_params.prefix = 'ima';

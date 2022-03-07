@@ -39,9 +39,7 @@ x = 10000000; % So that initially the norm(x) in the while loop is large
  
 while(iter < tracking_param.max_iter & norm(x) > tracking_param.max_x & norm(residues) > tracking_param.max_err) %change this for different conditions
 		% Current patch
-    WarpedImage = WarpImageSL3(CurrentImage, ReferenceImage, Hnew);    
-%     disp('Warped Img')
-%     disp(WarpedImage.index)
+    WarpedImage = WarpImageSL3(CurrentImage, ReferenceImage, Hnew);     
 	  % Patch error/residue in vector form	
     residues = double(ReferenceImage.I(WarpedImage.index)) - WarpedImage.I(WarpedImage.index);
 		switch tracking_param.estimation_method
@@ -70,9 +68,7 @@ while(iter < tracking_param.max_iter & norm(x) > tracking_param.max_x & norm(res
 		end;
 
 		% Compute unknown parameters x 
-    A = [x(5),x(3),x(1); x(4),-x(5)-x(6),x(2); x(7),x(8),x(6)]; 
-    disp('Displaying A');
-    disp(A);
+    A = [x(5),x(3),x(1); x(4),-x(5)-x(6),x(2); x(7),x(8),x(6)];  
     Hnew = Hnew*expm(A); % Compute the update of the Homography matrix using the exponential map
 
 		if(tracking_param.display)
