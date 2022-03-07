@@ -114,20 +114,20 @@ tracking_params.max_x = 1e-1;
 tracking_params.display = 1;
 tracking_params.estimation_method = 3; % 1 = Reference Jacobian, 2 = Current Jacobian, 3 = ESM 
 tracking_params.mestimator = 1;
-tracking_params.robust_method='tukey'; % Can be 'huber' or 'tukey' for the moment
-tracking_params.scale_threshold = 1; % 1 grey level
+tracking_params.robust_method='huber'; % Can be 'huber' or 'tukey' for the moment
+tracking_params.scale_threshold = 2; % 1 grey level
 tracking_params.size_x = 8; % number of parameters to estimate
 
 % Change for your paths here 
 capture_params.homedir = 'C:\Users\Luiss\Documents\MATLAB\UTLN\Vision\cyclopes';
-capture_params.data_dir = 'C:\Users\Luiss\Documents\MATLAB\UTLN\Vision\IMAGES_smallRGB\';
+capture_params.data_dir = 'C:\Users\Luiss\Documents\MATLAB\UTLN\Vision\Versailles_canyon\Left\';
 %capture_params.data_dir = [getenv('DIR_DATA'), '/../data/Versailles/Versailles_canyon/Left/']; 
 %capture_params.homedir = getenv('DIR_CYCLOPES'); 
-capture_params.prefix = 'img';
-capture_params.suffix = '.png';
+capture_params.prefix = 'ima';
+capture_params.suffix = '.pgm';
 capture_params.string_size= 4;
-capture_params.first = 100;
-capture_params.last = 200;
+capture_params.first = 50;
+capture_params.last = 250;
 capture_params.savepolygon = 0;
 capture_params.loadpolygon = 0;
 
