@@ -131,10 +131,77 @@ for(k=capture_params.first+1:capture_params.last)
         iters_required(i-1) = iter_required;
 
 end;
-results = [iterator, computation_time, norms_x, iters_required];
+results = [iterator', computation_time', norms_x', iters_required'];
 
 return;
 
+% Attempt Assignment Questions
+function Question4a(capture_params, tracking_params)
+    % 1 = Reference Jacobian, 2 = Current Jacobian, 3 = ESM
+    tracking_params.estimation_method = 1;
+    [H, estimation_method_1_mestimator_0_robust_method_huber] = ...
+                        mainTrackImageSL3(capture_params, tracking_params);
+    
+    tracking_params.estimation_method = 2;
+    [H, estimation_method_2_mestimator_0_robust_method_huber] = ...
+                        mainTrackImageSL3(capture_params, tracking_params);
+    tracking_params.estimation_method = 3;
+    [H, estimation_method_3_mestimator_0_robust_method_huber] = ...
+                        mainTrackImageSL3(capture_params, tracking_params);
+    
+    % Plot
+    data(:, :, 1) = estimation_method_1_mestimator_0_robust_method_huber;
+    data(:, :, 2) = estimation_method_2_mestimator_0_robust_method_huber;
+    data(:, :, 3) = estimation_method_3_mestimator_0_robust_method_huber;
+    
+    variables = {
+        'number of images'
+        'computation time (seconds)'
+        'error'
+        'iterations required per image'
+        };
+    legends = {'Reference Jacobian', 'Current Jacobian', 'ESM'};
+    plot_results(data, 3, variables, legends);
+return
+
+function Question4b(capture_params, tracking_params)
+    % 1 = Reference Jacobian, 2 = Current Jacobian, 3 = ESM
+    tracking_params.estimation_method = 3;
+    tracking_params.mestimator = 0;
+    [H, estimation_method_3_mestimator_0_robust_method_huber] = ...
+                        mainTrackImageSL3(capture_params, tracking_params);
+
+    tracking_params.mestimator = 1;
+    [H, estimation_method_3_mestimator_1_robust_method_huber] = ...
+                        mainTrackImageSL3(capture_params, tracking_params);
+    
+    % Plot
+    data(:, :, 1) = estimation_method_3_mestimator_0_robust_method_huber;
+    data(:, :, 2) = estimation_method_3_mestimator_1_robust_method_huber;
+    
+    variables = {
+        'number of images'
+        'computation time (seconds)'
+        'error'
+        'iterations required per image'
+        };
+    legends = {'ESM without m-estimator', 'ESM with m-estimator'};
+    plot_results(data, 2, variables, legends);
+
+    
+    tracking_params.estimation_method = 3;
+    tracking_params.mestimator = 1;   
+    tracking_params.robust_method='tukey';
+    [H, estimation_method_3_mestimator_1_robust_method_tukey] = ...
+                        mainTrackImageSL3(capture_params, tracking_params);
+
+    % Plot
+    data(:, :, 1) = estimation_method_3_mestimator_1_robust_method_huber;
+    data(:, :, 2) = estimation_method_3_mestimator_1_robust_method_tukey;
+
+    legends = {'ESM with huber method', 'ESM with tukey method'};
+    plot_results(data, 2, variables, legends);
+return
 % Default test function if no values are given
 function test()
 
@@ -152,7 +219,7 @@ tracking_params.changereference = 0;
 tracking_params.save_results = true;
 
 % Change for your paths here 
-capture_params.who = 2; % 1 = Vipul, 2 = Luis
+capture_params.who = 1; % 1 = Vipul, 2 = Luis
 
 if (capture_params.who == 2)
 capture_params.homedir = 'C:\Users\Luiss\Documents\MATLAB\UTLN\Semester2\Vision\cyclopes';
@@ -172,7 +239,6 @@ capture_params.last = 100;
 capture_params.savepolygon = 0;
 capture_params.loadpolygon = 1;
 
-
-[H, results] = mainTrackImageSL3(capture_params, tracking_params);
-
+% Question4a(capture_params, tracking_params);
+% Question4b(capture_params, tracking_params);
 return;
