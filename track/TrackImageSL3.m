@@ -85,7 +85,7 @@ while(iter < tracking_param.max_iter & norm(x) > tracking_param.max_x & norm(res
 		iter = iter+1;
 
 		if(tracking_param.display)
-			norm(x)
+			norm(x);
 		end;
 end
 
@@ -95,12 +95,12 @@ if(tracking_param.display)
 	WarpedImage.polygon = Hnew*ReferenceImage.polygon; 
 	WarpedImage.polygon = WarpedImage.polygon./repmat(WarpedImage.polygon(3,:),3,1);
 
-	norm(x)
-	iter
+	norm(x);
+	iter;
 end
 
 norm_x = norm(x);
-iter_required = iter
+iter_required = iter;
 
 return
 
