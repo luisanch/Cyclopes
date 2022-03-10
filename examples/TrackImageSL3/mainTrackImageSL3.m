@@ -91,11 +91,13 @@ for(k=capture_params.first+1:capture_params.last)
 	
 		image_num_string = sprintf(['%0', num2str(capture_params.string_size), 'd'], k);
 		file_I = [capture_params.data_dir, capture_params.prefix, image_num_string, capture_params.suffix];
+		file_I_right = [capture_params.right_img_data_dir, capture_params.prefix, image_num_string, capture_params.suffix];
 
 		% Read current image
         try
 		    if(strcmp(capture_params.suffix, '.pgm'))
 			    CurrentImage.I = imread(file_I);
+			    CurrentImageRight.I = imread(file_I_right);
 		    else
 			    CurrentImage.Irgb = imread(file_I);
 		      CurrentImage.I = rgb2gray(CurrentImage.Irgb);
@@ -244,29 +246,45 @@ tracking_params.make_video = false;
 
 % Change for your paths here 
 capture_params.who = 1; % 1 = Vipul, 2 = Lui+s
+capture_params.capture_underwater_images = 0;
 
 if (capture_params.who == 2)
-capture_params.homedir = 'C:\Users\Luiss\Documents\MATLAB\UTLN\Semester2\Vision\cyclopes';
-capture_params.data_dir = 'C:\Users\Luiss\Documents\MATLAB\UTLN\Semester2\Vision\Versailles_canyon\Left\';
+    capture_params.homedir = 'C:\Users\Luiss\Documents\MATLAB\UTLN\Semester2\Vision\cyclopes';
+    if(capture_params.capture_underwater_images)
+        capture_params.data_dir = 'C:\Users\Luiss\Documents\MATLAB\UTLN\Semester2\Vision\IMAGES_smallRGB\';
+    else
+        capture_params.data_dir = 'C:\Users\Luiss\Documents\MATLAB\UTLN\Semester2\Vision\Versailles_canyon\Left\';
+        capture_params.right_img_data_dir = 'C:\Users\Luiss\Documents\MATLAB\UTLN\Semester2\Vision\Versailles_canyon\Right\';
+    end
 elseif (capture_params.who == 1)
-capture_params.homedir = 'C:/Users/Vipul/Documents/MIR/Visual Slam/SLAM/cyclopes';
-capture_params.data_dir = 'C:/Users/Vipul/Documents/MIR/Visual Slam/SLAM/IMAGES_smallRGB/';
+    capture_params.homedir = 'C:/Users/Vipul/Documents/MIR/Visual Slam/SLAM/cyclopes';
+    if(capture_params.capture_underwater_images)
+        capture_params.data_dir = 'C:/Users/Vipul/Documents/MIR/Visual Slam/SLAM/IMAGES_smallRGB/';
+    else
+        capture_params.data_dir = 'C:/Users/Vipul/Documents/MIR/Visual Slam/SLAM/Versailles_canyon/Left/';
+        capture_params.right_img_data_dir = 'C:/Users/Vipul/Documents/MIR/Visual Slam/SLAM/Versailles_canyon/Right/';
+    end
 end
 
 %capture_params.data_dir = [getenv('DIR_DATA'), '/../data/Versailles/Versailles_canyon/Left/']; 
 %capture_params.homedir = getenv('DIR_CYCLOPES'); 
+if(capture_params.capture_underwater_images)
 capture_params.prefix = 'img'; %ima for Versailles_canyon and img for Underwater
-capture_params.suffix = '.png'; % opgm for Versailles_canyon and png for Underwater
+capture_params.suffix = '.png'; % pgm for Versailles_canyon and png for Underwater
+else
+capture_params.prefix = 'ima'; %ima for Versailles_canyon and img for Underwater
+capture_params.suffix = '.pgm'; % pgm for Versailles_canyon and png for Underwater
+end
 capture_params.string_size= 4;
-capture_params.first = 110;
-capture_params.last = 250;
-capture_params.savepolygon = 0;
-capture_params.loadpolygon = 1;
+capture_params.first = 50;
+capture_params.last = 100;
+capture_params.savepolygon = 1;
+capture_params.loadpolygon = 0;
 
 % Question4a(capture_params, tracking_params);
 % Question4b(capture_params, tracking_params);
-Question7(capture_params, tracking_params);
+% Question7(capture_params, tracking_params);
 % Question 6
-% [H, results] =  mainTrackImageSL3(capture_params, tracking_params);
+[H, results] =  mainTrackImageSL3(capture_params, tracking_params);
 
 return;
