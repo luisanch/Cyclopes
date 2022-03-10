@@ -91,11 +91,11 @@ for(k=capture_params.first+1:capture_params.last)
 	
 		image_num_string = sprintf(['%0', num2str(capture_params.string_size), 'd'], k);
 		file_I = [capture_params.data_dir, capture_params.prefix, image_num_string, capture_params.suffix];
-		file_I_right = [capture_params.right_img_data_dir, capture_params.prefix, image_num_string, capture_params.suffix];
 
 		% Read current image
         try
 		    if(strcmp(capture_params.suffix, '.pgm'))
+		        file_I_right = [capture_params.right_img_data_dir, capture_params.prefix, image_num_string, capture_params.suffix];
 			    CurrentImage.I = imread(file_I);
 			    CurrentImageRight.I = imread(file_I_right);
 		    else
