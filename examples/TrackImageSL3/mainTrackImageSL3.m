@@ -66,11 +66,12 @@ include(capture_params.homedir);
 close all;
 % Initialse - read reference image and select zone to track
 ReferenceImage = InitTrackImageSL3(capture_params);
+RightReferenceImage = ReferenceImage;
 close all;
 
 if(tracking_param.display)
 	scrsz = get(0,'ScreenSize');
-	figure('Position',[scrsz(3)/4 scrsz(4)/2 scrsz(3)/2 scrsz(4)/2]);
+% 	figure('Position',[scrsz(3)/4 scrsz(4)/2 scrsz(3)/2 scrsz(4)/2]);
 	DrawImagePoly('Reference Image', 1, ReferenceImage.I, ReferenceImage.polygon);
 end;
 
@@ -82,7 +83,7 @@ iterator = [];
 
 % Initialise Homography 
 H(:,:,1) = eye(3,3);
-
+H_right(:,:,1) = [1, 0, -50; 0, 1, 0; 0, 0, 1];
 % Homography index
 i=1;
 % Loop through sequence
@@ -108,18 +109,33 @@ for(k=capture_params.first+1:capture_params.last)
 		i = i+1;
 
         if(tracking_param.changereference)
+            Htrack_right = eye(3,3);
             Htrack = eye(3,3);
         else
             Htrack = H(:, :, i-1);
+            Htrack_right = H_right(:, :, i-1);
         end
 
 		% Iterative non-linear homography estimation
         [H(:,:,i), WarpedImage, norm_x, iter_required] = TrackImageSL3(ReferenceImage, CurrentImage, Htrack, tracking_param);
 		H(:,:,i)
+
+        [H_right(:,:,i), WarpedImageRight, norm_x_right, iter_required_right] = TrackImageSL3(RightReferenceImage, CurrentImageRight, Htrack_right, tracking_param);
+		H_right(:,:,i)
 	
+        if (i == 2)
+            RightReferenceImage.I = CurrentImageRight.I;
+%             ReferenceImage.Irgb = CurrentImage.Irgb;
+            RightReferenceImage.polygon = WarpedImageRight.polygon;
+            RightReferenceImage.index = WarpedImageRight.index;
+            RightReferenceImage.Mask = WarpedImageRight.Mask;
+            Htrack_right = eye(3);
+        end
 		if(tracking_param.display)
 			figure(1); hold on;	
 			DrawImagePoly('Warped Current Image', 1, CurrentImage.I, WarpedImage.polygon);
+			figure(1); hold on;	
+			DrawImagePoly('Warped Current Image Right', 2, CurrentImageRight.I, WarpedImageRight.polygon);
             if(tracking_param.make_video)
                 frame = getframe ;
                 F(i-1) = frame;
@@ -128,7 +144,7 @@ for(k=capture_params.first+1:capture_params.last)
 
         if(tracking_param.changereference)
             ReferenceImage.I = CurrentImage.I;
-            ReferenceImage.Irgb = CurrentImage.Irgb;
+%             ReferenceImage.Irgb = CurrentImage.Irgb;
             ReferenceImage.polygon = WarpedImage.polygon;
             ReferenceImage.index = WarpedImage.index;
             ReferenceImage.Mask = WarpedImage.Mask;
@@ -180,7 +196,7 @@ return
 
 function Question4b(capture_params, tracking_params)
     % 1 = Reference Jacobian, 2 = Current Jacobian, 3 = ESM
-    tracking_params.estimation_method = 3;
+    tracking_params.estimation_method = 2;
     tracking_params.mestimator = 0;
     [H, estimation_method_3_mestimator_0_robust_method_huber] = ...
                         mainTrackImageSL3(capture_params, tracking_params);
@@ -235,10 +251,10 @@ tracking_params.max_iter = 45;
 tracking_params.max_err = 400;
 tracking_params.max_x = 1e-1;
 tracking_params.display = 1;
-tracking_params.estimation_method = 3; % 1 = Reference Jacobian, 2 = Current Jacobian, 3 = ESM 
+tracking_params.estimation_method = 2; % 1 = Reference Jacobian, 2 = Current Jacobian, 3 = ESM 
 tracking_params.mestimator = 0;
 tracking_params.robust_method='huber'; % Can be 'huber' or 'tukey' for the moment
-tracking_params.scale_threshold = 2; % 1 grey level
+tracking_params.scale_threshold = 3; % 1 grey level
 tracking_params.size_x = 8; % number of parameters to estimate
 tracking_params.changereference = 0;
 % Saving Results
@@ -278,8 +294,8 @@ end
 capture_params.string_size= 4;
 capture_params.first = 50;
 capture_params.last = 100;
-capture_params.savepolygon = 1;
-capture_params.loadpolygon = 0;
+capture_params.savepolygon = 0;
+capture_params.loadpolygon = 1;
 
 % Question4a(capture_params, tracking_params);
 % Question4b(capture_params, tracking_params);
