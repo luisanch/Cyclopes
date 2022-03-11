@@ -66,7 +66,6 @@ include(capture_params.homedir);
 close all;
 % Initialse - read reference image and select zone to track
 ReferenceImage = InitTrackImageSL3(capture_params);
-RightReferenceImage = ReferenceImage;
 close all;
 
 if(tracking_param.display)
@@ -83,9 +82,16 @@ iterator = [];
 
 % Initialise Homography 
 H(:,:,1) = eye(3,3);
-H_right(:,:,1) = [1, 0, -50; 0, 1, 0; 0, 0, 1];
+H_right(:,:,1) = eye(3,3);
+H_lr = [
+    1, 0, -50
+    0, 1, 0
+    0, 0, 1];
 % Homography index
 i=1;
+% Get Reference Image for the right camera
+[H_lr, RightReferenceImage] = getRightReferenceImage(ReferenceImage, H_lr, capture_params, tracking_param);
+
 % Loop through sequence
 for(k=capture_params.first+1:capture_params.last)
         tic;
@@ -123,14 +129,14 @@ for(k=capture_params.first+1:capture_params.last)
         [H_right(:,:,i), WarpedImageRight, norm_x_right, iter_required_right] = TrackImageSL3(RightReferenceImage, CurrentImageRight, Htrack_right, tracking_param);
 		H_right(:,:,i)
 	
-        if (i == 2)
-            RightReferenceImage.I = CurrentImageRight.I;
-%             ReferenceImage.Irgb = CurrentImage.Irgb;
-            RightReferenceImage.polygon = WarpedImageRight.polygon;
-            RightReferenceImage.index = WarpedImageRight.index;
-            RightReferenceImage.Mask = WarpedImageRight.Mask;
-            Htrack_right = eye(3);
-        end
+%         if (i == 2)
+%             RightReferenceImage.I = CurrentImageRight.I;
+% %             ReferenceImage.Irgb = CurrentImage.Irgb;
+%             RightReferenceImage.polygon = WarpedImageRight.polygon;
+%             RightReferenceImage.index = WarpedImageRight.index;
+%             RightReferenceImage.Mask = WarpedImageRight.Mask;
+%             Htrack_right = eye(3);
+%         end
 		if(tracking_param.display)
 			figure(1); hold on;	
 			DrawImagePoly('Warped Current Image', 1, CurrentImage.I, WarpedImage.polygon);
@@ -162,7 +168,23 @@ if(tracking_param.make_video)
 end
 
 results = [iterator', computation_time', norms_x', iters_required'];
+assignin('base','H',H);
+assignin('base','H_r',H_right);
+return;
 
+
+function [H_lr, RightReferenceImage] = getRightReferenceImage(LeftReferenceImage, H, capture_params, tracking_param)
+RightReferenceImage = LeftReferenceImage;
+% Get Reference Image for the right camera
+image_num_string = sprintf(['%0', num2str(capture_params.string_size), 'd'], capture_params.first);
+file_I_right = [capture_params.right_img_data_dir, capture_params.prefix, image_num_string, capture_params.suffix];
+CurrentImageRight.I = imread(file_I_right);
+[H_lr, WarpedImageRight, norm_x_right, iter_required_right] = TrackImageSL3(LeftReferenceImage, CurrentImageRight, H, tracking_param);
+
+RightReferenceImage.I = CurrentImageRight.I;
+RightReferenceImage.polygon = WarpedImageRight.polygon;
+RightReferenceImage.index = WarpedImageRight.index;
+RightReferenceImage.Mask = WarpedImageRight.Mask;
 return;
 
 % Attempt Assignment Questions
