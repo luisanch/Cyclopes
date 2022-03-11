@@ -123,10 +123,10 @@ for(k=capture_params.first+1:capture_params.last)
         end
 
 		% Iterative non-linear homography estimation
-        [H(:,:,i), WarpedImage, norm_x, iter_required] = TrackImageSL3(ReferenceImage, CurrentImage, Htrack, tracking_param);
+        [H(:,:,i), WarpedImage, norm_x, iter_required] = TrackImageSL3(ReferenceImage, CurrentImage, Htrack, tracking_param, 1);
 		H(:,:,i)
 
-        [H_right(:,:,i), WarpedImageRight, norm_x_right, iter_required_right] = TrackImageSL3(RightReferenceImage, CurrentImageRight, Htrack_right, tracking_param);
+        [H_right(:,:,i), WarpedImageRight, norm_x_right, iter_required_right] = TrackImageSL3(RightReferenceImage, CurrentImageRight, Htrack_right, tracking_param, 2);
 		H_right(:,:,i)
 	
 %         if (i == 2)
@@ -179,7 +179,7 @@ RightReferenceImage = LeftReferenceImage;
 image_num_string = sprintf(['%0', num2str(capture_params.string_size), 'd'], capture_params.first);
 file_I_right = [capture_params.right_img_data_dir, capture_params.prefix, image_num_string, capture_params.suffix];
 CurrentImageRight.I = imread(file_I_right);
-[H_lr, WarpedImageRight, norm_x_right, iter_required_right] = TrackImageSL3(LeftReferenceImage, CurrentImageRight, H, tracking_param);
+[H_lr, WarpedImageRight, norm_x_right, iter_required_right] = TrackImageSL3(LeftReferenceImage, CurrentImageRight, H, tracking_param,2);
 
 RightReferenceImage.I = CurrentImageRight.I;
 RightReferenceImage.polygon = WarpedImageRight.polygon;
@@ -283,7 +283,7 @@ tracking_params.changereference = 0;
 tracking_params.make_video = false;
 
 % Change for your paths here 
-capture_params.who = 1; % 1 = Vipul, 2 = Lui+s
+capture_params.who = 2; % 1 = Vipul, 2 = Lui+s
 capture_params.capture_underwater_images = 0;
 
 if (capture_params.who == 2)
