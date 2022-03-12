@@ -85,6 +85,7 @@ H(:,:,1) = eye(3,3);
 
 % Homography index
 i=1;
+change_counter = tracking_param.change_every;
 % Loop through sequence
 for(k=capture_params.first+1:capture_params.last)
         tic;
@@ -106,16 +107,27 @@ for(k=capture_params.first+1:capture_params.last)
             continue
         end
 		i = i+1;
+        change_counter = change_counter - 1;
 
-        if(tracking_param.changereference)
+        if(tracking_param.changereference && change_counter == 0)
             Htrack = eye(3,3);
         else
             Htrack = H(:, :, i-1);
         end
 
+        if(tracking_param.changereference && change_counter == 0) 
+            ReferenceImage.I = CurrentImage.I;
+            ReferenceImage.Irgb = CurrentImage.Irgb;
+            ReferenceImage.polygon = WarpedImage.polygon;
+            ReferenceImage.index = WarpedImage.index;
+            ReferenceImage.Mask = WarpedImage.Mask;
+            change_counter = tracking_param.change_every;
+            keyboard
+        end
+
 		% Iterative non-linear homography estimation
         [H(:,:,i), WarpedImage, norm_x, iter_required] = TrackImageSL3(ReferenceImage, CurrentImage, Htrack, tracking_param);
-		H(:,:,i)
+		H(:,:,i);
 	
 		if(tracking_param.display)
 			figure(1); hold on;	
@@ -124,15 +136,7 @@ for(k=capture_params.first+1:capture_params.last)
                 frame = getframe ;
                 F(i-1) = frame;
             end
-		end;
-
-        if(tracking_param.changereference)
-            ReferenceImage.I = CurrentImage.I;
-            ReferenceImage.Irgb = CurrentImage.Irgb;
-            ReferenceImage.polygon = WarpedImage.polygon;
-            ReferenceImage.index = WarpedImage.index;
-            ReferenceImage.Mask = WarpedImage.Mask;
-        end
+		end; 
 
         % Storing params
         iterator(i-1) = i-1;
@@ -240,7 +244,8 @@ tracking_params.mestimator = 0;
 tracking_params.robust_method='huber'; % Can be 'huber' or 'tukey' for the moment
 tracking_params.scale_threshold = 2; % 1 grey level
 tracking_params.size_x = 8; % number of parameters to estimate
-tracking_params.changereference = 0;
+tracking_params.changereference = 1;
+tracking_params.change_every = 5;
 % Saving Results
 tracking_params.make_video = false;
 
