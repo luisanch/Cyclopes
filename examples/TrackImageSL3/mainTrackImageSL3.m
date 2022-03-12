@@ -66,6 +66,7 @@ include(capture_params.homedir);
 close all;
 % Initialse - read reference image and select zone to track
 ReferenceImage = InitTrackImageSL3(capture_params);
+MovingLeftReferenceImage = ReferenceImage;
 close all;
 
 if(tracking_param.display)
@@ -83,14 +84,14 @@ iterator = [];
 % Initialise Homography 
 H(:,:,1) = eye(3,3);
 H_right(:,:,1) = eye(3,3);
-H_lr = [
+H_lr(:,:,1) = [
     1, 0, -50
     0, 1, 0
     0, 0, 1];
 % Homography index
 i=1;
 % Get Reference Image for the right camera
-[H_lr, RightReferenceImage] = getRightReferenceImage(ReferenceImage, H_lr, capture_params, tracking_param);
+[H_lr(:,:,1), RightReferenceImage] = getRightReferenceImage(ReferenceImage, H_lr(:,:,1), capture_params, tracking_param);
 
 % Loop through sequence
 for(k=capture_params.first+1:capture_params.last)
@@ -128,7 +129,19 @@ for(k=capture_params.first+1:capture_params.last)
 
         [H_right(:,:,i), WarpedImageRight, norm_x_right, iter_required_right] = TrackImageSL3(RightReferenceImage, CurrentImageRight, Htrack_right, tracking_param);
 		H_right(:,:,i)
-	
+
+        MovingLeftReferenceImage.I = CurrentImage.I;
+        MovingLeftReferenceImage.polygon = WarpedImage.polygon;
+        MovingLeftReferenceImage.index = WarpedImage.index;
+        MovingLeftReferenceImage.Mask = WarpedImage.Mask;
+
+        [H_lr_i, WarpedImageLeftRight, norm_x_right, iter_required_right] = TrackImageSL3(MovingLeftReferenceImage, CurrentImageRight, H_lr(:,:,i-1), tracking_param);
+		H2_lr = H(:,:,i)*H_lr_i*inv(H_right(:,:,i));
+        H1_lr = H_lr(:,:,1);
+        x1_lr = logm(H1_lr);
+        x2_lr = logm(H2_lr);
+        H_lr(:,:,1) = expm((x1_lr+x2_lr)./2);
+        H_lr(:,:,i) = H_lr_i;
 %         if (i == 2)
 %             RightReferenceImage.I = CurrentImageRight.I;
 % %             ReferenceImage.Irgb = CurrentImage.Irgb;
@@ -142,6 +155,8 @@ for(k=capture_params.first+1:capture_params.last)
 			DrawImagePoly('Warped Current Image', 1, CurrentImage.I, WarpedImage.polygon);
 			figure(1); hold on;	
 			DrawImagePoly('Warped Current Image Right', 2, CurrentImageRight.I, WarpedImageRight.polygon);
+			figure(1); hold on;	
+			DrawImagePoly('Warped Current Image Left Right', 3, CurrentImageRight.I, H_lr(:,:,i-1)*WarpedImage.polygon);
             if(tracking_param.make_video)
                 frame = getframe ;
                 F(i-1) = frame;
@@ -154,6 +169,11 @@ for(k=capture_params.first+1:capture_params.last)
             ReferenceImage.polygon = WarpedImage.polygon;
             ReferenceImage.index = WarpedImage.index;
             ReferenceImage.Mask = WarpedImage.Mask;
+            RightReferenceImage.I = CurrentImageRight.I;
+%             ReferenceImage.Irgb = CurrentImage.Irgb;
+            RightReferenceImage.polygon = WarpedImageRight.polygon;
+            RightReferenceImage.index = WarpedImageRight.index;
+            RightReferenceImage.Mask = WarpedImageRight.Mask;
         end
 
         % Storing params
@@ -170,6 +190,7 @@ end
 results = [iterator', computation_time', norms_x', iters_required'];
 assignin('base','H',H);
 assignin('base','H_r',H_right);
+assignin('base','H_lr',H_lr);
 return;
 
 
@@ -315,7 +336,7 @@ capture_params.suffix = '.pgm'; % pgm for Versailles_canyon and png for Underwat
 end
 capture_params.string_size= 4;
 capture_params.first = 50;
-capture_params.last = 100;
+capture_params.last = 85;
 capture_params.savepolygon = 0;
 capture_params.loadpolygon = 1;
 
