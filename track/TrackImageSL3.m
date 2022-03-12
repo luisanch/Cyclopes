@@ -20,7 +20,7 @@
 %===================================================================
 
 
-function [Hnew, WarpedImage, norm_x, iter_required] = TrackImageSL3(ReferenceImage, CurrentImage, H, tracking_param)
+function [Hnew, WarpedImage, norm_x, iter_required] = TrackImageSL3(ReferenceImage, CurrentImage, H, tracking_param, figure_number)
 
 global DEBUG_LEVEL_2;
 if(DEBUG_LEVEL_2)
@@ -72,7 +72,7 @@ while(iter < tracking_param.max_iter & norm(x) > tracking_param.max_x & norm(res
     Hnew = Hnew*expm(A); % Compute the update of the Homography matrix using the exponential map
 
 		if(tracking_param.display)
-			figure(1); 
+			figure(figure_number); 
 			subplot(2,2,4); imagesc(WarpedImage.I); colormap(gray); title('Warped Image'); axis off;  
 			W = zeros(ReferenceImage.sIv, ReferenceImage.sIu);
 			W(WarpedImage.index) = weights;
