@@ -136,11 +136,11 @@ for(k=capture_params.first+1:capture_params.last)
         MovingLeftReferenceImage.Mask = WarpedImage.Mask;
 
         [H_lr_i, WarpedImageLeftRight, norm_x_right, iter_required_right] = TrackImageSL3(MovingLeftReferenceImage, CurrentImageRight, H_lr(:,:,i-1), tracking_param);
-		H2_lr = H(:,:,i)*H_lr_i*inv(H_right(:,:,i));
-        H1_lr = H_lr(:,:,1);
+		H2_lr = inv(H(:,:,i-1))*H(:,:,i)*H_lr_i*inv(inv(H_right(:,:,i-1))*H_right(:,:,i));
+        H1_lr = H_lr(:,:,i-1);
         x1_lr = logm(H1_lr);
         x2_lr = logm(H2_lr);
-        H_lr(:,:,1) = expm((x1_lr+x2_lr)./2);
+        H_lr(:,:,i-1) = expm((x1_lr+x2_lr)./2);
         H_lr(:,:,i) = H_lr_i;
 %         if (i == 2)
 %             RightReferenceImage.I = CurrentImageRight.I;
@@ -304,7 +304,7 @@ tracking_params.changereference = 0;
 tracking_params.make_video = false;
 
 % Change for your paths here 
-capture_params.who = 2; % 1 = Vipul, 2 = Lui+s
+capture_params.who = 1; % 1 = Vipul, 2 = Lui+s
 capture_params.capture_underwater_images = 0;
 
 if (capture_params.who == 2)

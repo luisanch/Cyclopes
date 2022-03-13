@@ -21,6 +21,9 @@
 
 
 function [Hnew, WarpedImage, norm_x, iter_required] = TrackImageSL3(ReferenceImage, CurrentImage, H, tracking_param, figure_number)
+if(nargin < 5)
+    figure_number = 1;
+end
 
 global DEBUG_LEVEL_2;
 if(DEBUG_LEVEL_2)
