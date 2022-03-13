@@ -113,11 +113,38 @@ for(k=capture_params.first+1:capture_params.last)
         Htrack = eye(3,3);
     else
         Htrack = H(:, :, i-1);
-    end
+    end 
+    
 
     % Iterative non-linear homography estimation
-    [H(:,:,i), WarpedImage, norm_x, iter_required, x] = TrackImageSL3(ReferenceImage, CurrentImage, Htrack, tracking_param);
-    H(:,:,i);
+    [~, ~, norm_x, iter_required, x, norm_residues] = TrackImageSL3(ReferenceImage, CurrentImage, Htrack, tracking_param);
+    
+   
+
+    if (norm_residues > tracking_param.residue_threshold )
+        disp(strcat('hey', norm_residues))
+         iterator(i-1) = i-1;
+    computation_time(i-1) = toc;
+    norms_x(i-1) = norms_x(i-2);
+    iters_required(i-1) = 0;
+    xs(i-1,:) = xs(i-2,:);
+    change_counter = change_counter - 1;
+     H(:,:,i) = Htrack;
+
+      if(tracking_param.display)
+        figure(1); hold on;
+        DrawImagePoly('Warped Current Image', 1, CurrentImage.I, WarpedImage.polygon);
+        if(tracking_param.make_video)
+            frame = getframe ;
+            F(i-1) = frame;
+        end
+    end;
+        continue
+        %change_counter = 1;
+    end
+
+    [H(:,:,i), WarpedImage, norm_x, iter_required, x, norm_residues] = TrackImageSL3(ReferenceImage, CurrentImage, Htrack, tracking_param);
+    H(:,:,i);  
 
     if(tracking_param.changereference && change_counter == 0)
         ReferenceImage.I = CurrentImage.I;
@@ -144,8 +171,7 @@ for(k=capture_params.first+1:capture_params.last)
     computation_time(i-1) = toc;
     norms_x(i-1) = norm_x;
     iters_required(i-1) = iter_required;
-    xs(:,i-1) = x';
-
+    xs(i-1,:) = x';
     change_counter = change_counter - 1;
 
 end;
@@ -153,7 +179,7 @@ if(tracking_param.make_video)
     make_video(F);
 end
 
-results = [iterator', computation_time', norms_x', iters_required'];
+results = [iterator', computation_time', norms_x', iters_required', xs];
 
 return;
 
@@ -210,7 +236,6 @@ variables = {
 legends = {'ESM without m-estimator', 'ESM with m-estimator'};
 plot_results(data, 2, variables, legends);
 
-
 tracking_params.estimation_method = 3;
 tracking_params.mestimator = 1;
 tracking_params.robust_method='tukey';
@@ -249,9 +274,10 @@ tracking_params.robust_method='huber'; % Can be 'huber' or 'tukey' for the momen
 tracking_params.scale_threshold = 2; % 1 grey level
 tracking_params.size_x = 8; % number of parameters to estimate
 tracking_params.changereference = 1;
-tracking_params.change_every = 1;
+tracking_params.change_every = 500;
+tracking_params.residue_threshold = 1.5e3;
 % Saving Results
-tracking_params.make_video = false;
+tracking_params.make_video = true;
 
 % Change for your paths here
 capture_params.who = 2; % 1 = Vipul, 2 = Lui+s
@@ -286,9 +312,9 @@ else
 end
 capture_params.string_size= 4;
 capture_params.first = 50;
-capture_params.last = 70;
-capture_params.savepolygon = 1;
-capture_params.loadpolygon = 0;
+capture_params.last = 120;
+capture_params.savepolygon = 0;
+capture_params.loadpolygon = 1;
 
 % Question4a(capture_params, tracking_params);
 % Question4b(capture_params, tracking_params);

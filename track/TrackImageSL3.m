@@ -20,7 +20,7 @@
 %===================================================================
 
 
-function [Hnew, WarpedImage, norm_x, iter_required, x] = TrackImageSL3(ReferenceImage, CurrentImage, H, tracking_param)
+function [Hnew, WarpedImage, norm_x, iter_required, x, norm_residues] = TrackImageSL3(ReferenceImage, CurrentImage, H, tracking_param)
 
 global DEBUG_LEVEL_2;
 if(DEBUG_LEVEL_2)
@@ -64,7 +64,6 @@ while(iter < tracking_param.max_iter & norm(x) > tracking_param.max_x & norm(res
 
 			otherwise
 				error('Tracking estimation method does not exist');
-
 		end;
 
 		% Compute unknown parameters x 
@@ -100,6 +99,7 @@ if(tracking_param.display)
 end
 
 norm_x = norm(x);
+norm_residues = norm(residues);
 iter_required = iter;
 
 return
